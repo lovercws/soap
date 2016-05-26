@@ -48,11 +48,14 @@ public class XMLUtil {
 			
 			Namespace namespace = element.getNamespace();
 			if(namespace!=null){
-				String prefix = namespace.getPrefix();
-				if(prefix==null||"".equals(prefix)){
-					builder.append(" xmlns=\""+namespace.getStringValue()+"\"");
-				}else{
-					builder.append(" xmlns:"+namespace.getPrefix()+"=\""+namespace.getStringValue()+"\"");
+				String nameSpaceValue = namespace.getStringValue();
+				if(nameSpaceValue!=null&&!"".equals(nameSpaceValue.trim())){
+					String prefix = namespace.getPrefix();
+					if(prefix==null||"".equals(prefix)){
+						builder.append(" xmlns=\""+nameSpaceValue+"\"");
+					}else{
+						builder.append(" xmlns:"+namespace.getPrefix()+"=\""+nameSpaceValue+"\"");
+					}
 				}
 			}
 			builder.append(">\r\n");
