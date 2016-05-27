@@ -37,6 +37,6 @@ public class DataService {
 	}
 	
 	public static void main(String[] args) {
-		Endpoint.publish("http://localhost:9002/serices/dataService", new DataService());
+		Endpoint.publish("http://192.168.8.144:9002/serices/dataService", new DataService());
 	}
 }

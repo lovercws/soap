@@ -52,6 +52,9 @@ body {
 				}
 			},
 			onDblClick : function(node) {//双击方法节点   显示执行
+				if (node.children) {
+					return;
+				}
 				$('#methodCallWindow').window('open');
 			    //获取参数xml数据
 			    $.ajax({
@@ -115,7 +118,6 @@ body {
 								$("#resultPanel").val($("#resultPanel").text());
 			    			}
 			    		}
-						
 			    	},
 			    	error:function(XMLHttpRequest,textStatus,errorThrown){
 			    		$("#resultPanel").html(textStatus+"\r\n"+errorThrown);

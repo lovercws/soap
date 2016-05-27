@@ -111,7 +111,7 @@ public class WsdlLoadServlet extends HttpServlet{
 			throw new IllegalArgumentException();
 		}
 		
-	    String json = ParameterUtil.getInParameter(serviceBean, methodName);
+	    String json = ParameterUtil.getInParameter(serviceBean, methodName,null);
 	    try {
 			json=XMLUtil.printXML(json);
 		} catch (DocumentException e) {

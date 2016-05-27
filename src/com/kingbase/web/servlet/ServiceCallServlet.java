@@ -1,6 +1,9 @@
 package com.kingbase.web.servlet;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -33,7 +36,7 @@ public class ServiceCallServlet extends HttpServlet{
 				//解析wsdl
 				ServiceBean serviceBean = soapParser.parser(wsdllocation);
 				//获取参数
-				json = ParameterUtil.getInParameter(serviceBean, methodName);
+				json = ParameterUtil.getInParameter(serviceBean, methodName,null);
 				json=XMLUtil.printXML(json);
 				//获取 参数xml
 			} catch (Exception e) {
@@ -59,6 +62,36 @@ public class ServiceCallServlet extends HttpServlet{
 			}catch(Exception e){
 				json="{\"success\":false,msg:\""+e.getLocalizedMessage()+"\"}";
 			}
+		}
+		//表单提交 方式调用
+		else if("submit".equals(type)){
+			//参数数组
+			SOAPParser soapParser=new SOAPParser();
+			HttpCaller httpCaller=new HttpCaller();
+			Map<String, String[]> map = request.getParameterMap();
+			
+			Map<String,Object> parameterMap=new HashMap<String,Object>();
+			for (Entry<String, String[]> entry : map.entrySet()) {
+				String[] values = entry.getValue();
+				if(values!=null&&values.length>0){
+					parameterMap.put(entry.getKey(),values[0]);
+				}
+			}
+			//解析wsdl
+			try {
+				ServiceBean serviceBean = soapParser.parser(wsdllocation);
+				json = ParameterUtil.getInParameter(serviceBean, methodName,parameterMap);
+				System.out.println("parameter "+json);
+				//调用 返回结果
+				json = httpCaller.caller(wsdllocation, serviceBean.getTargetNamespace(), serviceBean.getWsdlType(), methodName, json);
+			} catch (Exception e) {
+				json="{\"success\":false,msg:\""+e.getLocalizedMessage()+"\"}";
+			}
+		}else if("tree".equals(type)){
+			SOAPParser soapParser=new SOAPParser();
+			ServiceBean serviceBean = soapParser.parser(wsdllocation);
+			json = ParameterUtil.getServiceMessage(serviceBean);
+			System.out.println(json);
 		}
 		response.getWriter().print(json);
 	}

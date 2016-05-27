@@ -18,6 +18,9 @@ public class DocumentUtil {
 	 * @throws WSDLException
 	 */
 	public static Document getDocument(InputStream inputStream){
+		if(inputStream==null){
+			throw new IllegalArgumentException("输入流不能为空");
+		}
 		SAXReader reader=new SAXReader();
 		Document document=null;
 		try {

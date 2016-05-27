@@ -16,6 +16,7 @@ public class ParameterTypeBean {
 		basicTypes.add("double");
 		basicTypes.add("boolean");
 		basicTypes.add("unsignedByte");
+		basicTypes.add("base64Binary");
 	}
 	
 	private String typeName;//对象名称

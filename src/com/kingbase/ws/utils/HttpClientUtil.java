@@ -28,7 +28,7 @@ public class HttpClientUtil {
 			stream=response.getEntity().getContent();
 		}catch (Exception e) {
 			log.error("连接wsdl【"+uri+"】失败", e);
-			e.printStackTrace();
+			throw new RuntimeException();
 		}
 		return stream;
 	}

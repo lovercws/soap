@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
 
+import com.kingbase.ws.bean.BindingBean;
 import com.kingbase.ws.bean.OperationBean;
 import com.kingbase.ws.bean.ParameterBean;
 import com.kingbase.ws.bean.ParameterTypeBean;
@@ -44,16 +44,50 @@ public class OperationParse {
 			}
 		}
 		
-		//构建 对象
+		//在schema的直接节点下 如果存在complexType 则此类型为 参数类型
+		List<Element> schemaComplexTypeElements = ElementUtil.findElements(schemaelement, "complexType");
+		for (Element complexTypeElement : schemaComplexTypeElements) {
+			ParameterTypeBean bean=new ParameterTypeBean();
+			String name=complexTypeElement.attributeValue("name");
+			bean.setTypeName(name);
+			bean.setType("complexType");
+			List<BasicTypeBean> basicTypes = getBasicTypeFromComplexType(complexTypeElement);
+			bean.setBasicTypeBeans(basicTypes);
+			
+			parameterTypeBeans.add(bean);
+		}
+		
+		//从导入文件中 构建 对象
 		List<Element> importElements = ElementUtil.findElements(schemaelement, "import");
 		for (Element importElement : importElements) {
 		   List<ParameterTypeBean> parameterTypes=getSoapParameterType(importElement,serviceBean);
 		   parameterTypeBeans.addAll(parameterTypes);
 		}
 		
-		List<OperationBean> operationBeans=new ArrayList<OperationBean>();
+		
 		//遍历方法
-		for (Entry<String, List<ParameterBean>> entry : operationMap.entrySet()) {
+		List<BindingBean> bindingBeans = serviceBean.getBindingBeans();
+		if(bindingBeans==null){
+			throw new IllegalArgumentException("WSDL解析异常");
+		}
+		List<OperationBean> operationBeans = bindingBeans.get(0).getOperationBeans();
+		if(operationBeans==null){
+			throw new IllegalArgumentException("WSDL解析异常");
+		}
+		
+		for (OperationBean operationBean : operationBeans) {
+			String operationName = operationBean.getOperationName();
+			List<ParameterBean> inParameters = operationMap.get(operationName);
+			operationBean.setInParameters(inParameters);
+			
+			List<ParameterBean> outParameters = operationMap.get(operationName+"Response");
+			operationBean.setOutParameters(outParameters);
+		}
+		
+		/*
+		          重构 方法
+			List<OperationBean> operationBeans=new ArrayList<OperationBean>();
+		    for (Entry<String, List<ParameterBean>> entry : operationMap.entrySet()) {
 			String operationName=entry.getKey();
 			if(!operationName.contains("Response")){
 				
@@ -67,7 +101,7 @@ public class OperationParse {
 				
 				operationBeans.add(operationBean);
 			}
-		}
+		}*/
 		
 		serviceBean.setOperationBeans(operationBeans);
 		serviceBean.setParameterTypes(parameterTypeBeans);
