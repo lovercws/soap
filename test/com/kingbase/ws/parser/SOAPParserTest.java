@@ -19,7 +19,8 @@ public class SOAPParserTest extends TestCase{
 		//url="http://localhost:9000/serices/HelloWorld?wsdl";
 		//url="http://localhost:9001/serices/complex?wsdl";
 		//url="http://192.168.1.36:8080/default/orgbizService?wsdl";
-		url="http://localhost:8080/axis2/services/Version?wsdl";
+		//url="http://localhost:8080/axis2/services/Version?wsdl";
+		url="http://192.168.8.144:8000/default/WSWorklistQueryManagerServiceMock?wsdl";
 		
 		SOAPParser parser=new SOAPParser();
 		

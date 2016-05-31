@@ -11,10 +11,15 @@ public class ParameterTypeBean {
 		basicTypes.add("");
 		basicTypes.add("string");
 		basicTypes.add("decimal");
+		basicTypes.add("byte");
+		basicTypes.add("short");
 		basicTypes.add("int");
+		basicTypes.add("long");
 		basicTypes.add("float");
 		basicTypes.add("double");
 		basicTypes.add("boolean");
+		basicTypes.add("char");
+		basicTypes.add("dateTime");
 		basicTypes.add("unsignedByte");
 		basicTypes.add("base64Binary");
 	}

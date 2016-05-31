@@ -107,6 +107,69 @@ public class OperationParse {
 		serviceBean.setParameterTypes(parameterTypeBeans);
 	}
 
+	public static void parseOperationsFromSOAP2(List<Element> schemaElements, ServiceBean serviceBean) {
+		Map<String,List<ParameterBean>> operationMap=new HashMap<String,List<ParameterBean>>();
+		List<ParameterTypeBean> parameterTypeBeans=new ArrayList<ParameterTypeBean>();
+		
+		for (Element schemaelement : schemaElements) {
+			List<Element> elements = ElementUtil.findElements(schemaelement, "element");
+			
+			//构建输入输出参数
+			for (Element element : elements) {
+				String operationName=element.attributeValue("name");
+				
+				List<Element> complexTypeElements = ElementUtil.findElements(element, "complexType");
+				if(complexTypeElements.size()>0){
+					Element complexTypeElement = complexTypeElements.get(0);
+					List<ParameterBean> inparameters = getParameterFromComplexType(complexTypeElement);
+					operationMap.put(operationName, inparameters);
+				}
+			}
+			
+			//在schema的直接节点下 如果存在complexType 则此类型为 参数类型
+			List<Element> schemaComplexTypeElements = ElementUtil.findElements(schemaelement, "complexType");
+			for (Element complexTypeElement : schemaComplexTypeElements) {
+				ParameterTypeBean bean=new ParameterTypeBean();
+				String name=complexTypeElement.attributeValue("name");
+				bean.setTypeName(name);
+				bean.setType("complexType");
+				List<BasicTypeBean> basicTypes = getBasicTypeFromComplexType(complexTypeElement);
+				bean.setBasicTypeBeans(basicTypes);
+				
+				parameterTypeBeans.add(bean);
+			}
+			
+			//从导入文件中 构建 对象
+			List<Element> importElements = ElementUtil.findElements(schemaelement, "import");
+			for (Element importElement : importElements) {
+			   List<ParameterTypeBean> parameterTypes=getSoapParameterType(importElement,serviceBean);
+			   parameterTypeBeans.addAll(parameterTypes);
+			}
+		}
+		
+		//遍历方法
+		List<BindingBean> bindingBeans = serviceBean.getBindingBeans();
+		if(bindingBeans==null){
+			throw new IllegalArgumentException("WSDL解析异常");
+		}
+		List<OperationBean> operationBeans = bindingBeans.get(0).getOperationBeans();
+		if(operationBeans==null){
+			throw new IllegalArgumentException("WSDL解析异常");
+		}
+		
+		for (OperationBean operationBean : operationBeans) {
+			String operationName = operationBean.getOperationName();
+			List<ParameterBean> inParameters = operationMap.get(operationName);
+			operationBean.setInParameters(inParameters);
+			
+			List<ParameterBean> outParameters = operationMap.get(operationName+"Response");
+			operationBean.setOutParameters(outParameters);
+		}	
+		
+		serviceBean.setOperationBeans(operationBeans);
+		serviceBean.setParameterTypes(parameterTypeBeans);
+	}
+	
 	/**
 	 * 构建soap对象
 	 * @param importElement
@@ -117,6 +180,9 @@ public class OperationParse {
 		List<ParameterTypeBean> parameterTypeBeans=new ArrayList<ParameterTypeBean>();
 		
 		String schemaLocation = importElement.attributeValue("schemaLocation");
+		if(schemaLocation==null||"".equals(schemaLocation)){
+			return new ArrayList<ParameterTypeBean>();
+		}
 		if(!schemaLocation.startsWith("http://")&&!schemaLocation.startsWith("https://")){
 			schemaLocation=serviceBean.getHostURL()+schemaLocation;
 		}
@@ -318,4 +384,5 @@ public class OperationParse {
 			parameterTypeBean.setValues(values);
 		}
 	}
+
 }

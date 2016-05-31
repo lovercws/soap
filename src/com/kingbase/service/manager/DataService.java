@@ -1,5 +1,7 @@
 package com.kingbase.service.manager;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.jws.WebMethod;
@@ -34,6 +36,23 @@ public class DataService {
 	@WebMethod(operationName = "delete")
 	public DataManager delete(@WebParam(name = "id") String id) {
 		return map.remove(id);
+	}
+	
+	@WebMethod(operationName = "getAll")
+	public List<DataManager> getAll(){
+		return new ArrayList<>(map.values());
+	}
+	
+	@WebMethod(operationName = "add")
+	public boolean add(String id,List<DataManager> dataManagers){
+		if(dataManagers==null){
+			throw new IllegalArgumentException("数据不能为空");
+		}
+		for (DataManager dataManager : dataManagers) {
+			map.put(id, dataManager);
+		}
+		
+		return true;
 	}
 	
 	public static void main(String[] args) {

@@ -24,6 +24,6 @@ public class URLUtil {
 	}
 	
 	public static void main(String[] args) {
-		check("http://localhost:8081/soap/");
+		check("http://localhost:8081/soap/index.jsp");
 	}
 }

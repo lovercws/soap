@@ -42,24 +42,33 @@ public class TypesParse {
 		if(schemaElements.size()==0){
 			throw new IllegalArgumentException("types节点下不存在schema子节点");
 		}
-		//查看 schema节点下 是否存在 import节点 
-		Element schemaElement = schemaElements.get(0);
-		
-		List<Element> importElements = ElementUtil.findElements(schemaElement,IMPORT);
-		
-		//schema节点 是否存在 element节点
-		List<Element> elements = ElementUtil.findElements(schemaElement,"element");
-		
-		//soap 方式解析schema
-		if(importElements.size()==0||(importElements.size()>0&&elements.size()>0)){
-			parseSchemaFromSOAP(schemaElement,serviceBean);
-		}
-		//xsd方式解析schema
-		else{
-			parseSchemaFromXSD(importElements.get(0),serviceBean);
+		if(schemaElements.size()==1){
+			//查看 schema节点下 是否存在 import节点 
+			Element schemaElement = schemaElements.get(0);
+			
+			List<Element> importElements = ElementUtil.findElements(schemaElement,IMPORT);
+			
+			//schema节点 是否存在 element节点
+			List<Element> elements = ElementUtil.findElements(schemaElement,"element");
+			
+			//soap 方式解析schema
+			if(importElements.size()==0||(importElements.size()>0&&elements.size()>0)){
+				parseSchemaFromSOAP(schemaElement,serviceBean);
+			}
+			//xsd方式解析schema
+			else{
+				parseSchemaFromXSD(importElements.get(0),serviceBean);
+			}
+		}else{
+			parseSchemasFromSOAP(schemaElements,serviceBean);
 		}
 	}
 	
+	private static void parseSchemasFromSOAP(List<Element> schemaElements, ServiceBean serviceBean) {
+		serviceBean.setWsdlType("soap");
+		OperationParse.parseOperationsFromSOAP2(schemaElements, serviceBean);
+	}
+
 	/**
 	 * 从本地文件中 获取types节点
 	 * @param schemaElement schema节点
