@@ -40,7 +40,9 @@ public class TypesParse {
 		}
 		List<Element> schemaElements = ElementUtil.findElements(typesElements.get(0), SCHEMA);
 		if(schemaElements.size()==0){
-			throw new IllegalArgumentException("types节点下不存在schema子节点");
+			MessageParse.parse(element, serviceBean);
+			return;
+			//throw new IllegalArgumentException("types节点下不存在schema子节点");
 		}
 		if(schemaElements.size()==1){
 			//查看 schema节点下 是否存在 import节点 
